@@ -1,5 +1,7 @@
 import { Fragment, useRef } from "react";
 import useCanvasContext from "../hooks/useCanvasContext";
+
+const Buffer = require("buffer").Buffer;
 const BtnExtra = () => {
   const app_ctx = useCanvasContext();
   const button_download = useRef();
@@ -24,26 +26,37 @@ const BtnExtra = () => {
   function save() {
     const mainCanvas = document.getElementById(app_ctx.ID_CANVAS);
     let images = app_ctx.IMAGES;
+    let imageDataUrl = mainCanvas.toDataURL(app_ctx.IMAGE_FORMAT);
+    //let imageDataUrl = mainCanvas.toDataURL();
+    const imageBuffer = Buffer.from(
+      imageDataUrl.replace(/^data:image\/\w+;base64,/, ""),
+      "base64"
+    );
     let img_aux = {
       id: app_ctx.IMAGES.length + 1,
       name: "image_" + (app_ctx.IMAGES.length + 1),
-      data: mainCanvas.toDataURL(app_ctx.IMAGE_FORMAT),
+      data: imageBuffer,
     };
     app_ctx.EVENT_SAVE.setValue(true);
     images.push(img_aux);
     app_ctx.setImage(images);
     api_save_image(img_aux);
+    console.log("guardando: ", img_aux);
   }
   function api_save_image(img) {
+    const body = JSON.stringify(img);
+    const headers = { "Content-Type": "application/json" };
+
     fetch("http://127.0.0.1:3001/saveImage", {
       method: "POST",
-      body: img,
+      body,
+      headers,
     });
-    console.log(img);
-    /* .then((response) => response.json()) 
-      .then((data) => {
-        console.log(data);
-      }); */
+    const dataString = img.data.toString("base64");
+    const imageElement = document.createElement("img");
+    imageElement.src = `data:image/png;base64,${dataString}`;
+    document.body.appendChild(imageElement);
+    console.log(img.data);
   }
 
   function setPencilThickness() {

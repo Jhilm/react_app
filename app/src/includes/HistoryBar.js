@@ -45,25 +45,52 @@ const HistoryBar = () => {
 
   useEffect(() => {
     if (app_ctx.EVENT_SAVE.save) {
-      openDb();
       api_get_all_images();
-      add_item(app_ctx.IMAGES[app_ctx.IMAGES.length - 1]);
+      //openDb();
+      //add_item(app_ctx.IMAGES[app_ctx.IMAGES.length - 1]);
       refresh();
       app_ctx.EVENT_SAVE.setValue(false);
     }
   }, [app_ctx.EVENT_SAVE.save]);
 
-  const [datos, setDatos] = useState(null);
+  useEffect(() => {
+    api_get_all_images();
+  }, []);
+
+  let [datos, setDatos] = useState([]);
+  useEffect(() => {
+    reload_images_from_api();
+    console.log(datos);
+  }, [datos]);
 
   function api_get_all_images() {
     fetch("http://127.0.0.1:3001/getAllImages", {
-      method: "POST",
+      method: "GET",
+      headers: {
+        Authorization: "",
+      },
     })
       .then((response) => response.json())
       .then((data) => {
         setDatos(data);
-        console.log(data);
       });
+  }
+
+  function reload_images_from_api() {
+    const element = document.getElementById("lienzos_history");
+
+    while (element.firstChild) {
+      element.removeChild(element.firstChild);
+    }
+    datos.map((img_elem) => {
+      let dataString = JSON.stringify(img_elem.data).toString("base64");
+      let new_image = document.createElement("img");
+      new_image.src = `data:image/png;base64,${dataString}`;
+      new_image.className = "w3-card w3-col s12";
+      new_image.onclick = set_id;
+      element.appendChild(new_image);
+      console.log(Object.prototype.toString.call(img_elem.data));
+    });
   }
 
   function refresh() {

@@ -1,8 +1,10 @@
 version: "3.9"
 services:
   app:
+    container_name: app
     build: .
     ports:
       - "3000:3000"
     volumes:
-      - ./app:/home/react_app
+      - ./app:/usr/src/app
+    command: "npm i, npm start"
