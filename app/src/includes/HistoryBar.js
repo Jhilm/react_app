@@ -1,6 +1,7 @@
 //import "./css/tools.css";
 import { Fragment, useEffect, useState } from "react";
 import useCanvasContext from "../hooks/useCanvasContext";
+const Buffer = require("buffer").Buffer;
 
 const images_route = require.context("../assets", true);
 
@@ -8,7 +9,7 @@ const HistoryBar = () => {
   const app_ctx = useCanvasContext();
   var [upload_complete, setLoaded] = useState(true);
 
-  function set_id(e) {
+  function set_id_click_img(e) {
     localStorage.setItem("img_selected", e.target.src);
   }
   function cargar() {
@@ -82,14 +83,15 @@ const HistoryBar = () => {
     while (element.firstChild) {
       element.removeChild(element.firstChild);
     }
-    datos.map((img_elem) => {
-      let dataString = JSON.stringify(img_elem.data).toString("base64");
+    datos.map((img) => {
+      let dataString = Buffer.from(img.data).toString("base64");
       let new_image = document.createElement("img");
-      new_image.src = `data:image/png;base64,${dataString}`;
+      //new_image.src = `data:image/png;base64,${dataString}`;
+      new_image.src = `data:${app_ctx.IMAGE_FORMAT};base64,${dataString}`;
       new_image.className = "w3-card w3-col s12";
-      new_image.onclick = set_id;
+      new_image.onclick = set_id_click_img;
       element.appendChild(new_image);
-      console.log(Object.prototype.toString.call(img_elem.data));
+      console.log(Buffer.from(img.data));
     });
   }
 
@@ -106,7 +108,7 @@ const HistoryBar = () => {
         var new_image = new Image();
         new_image.src = img_elem.data;
         new_image.className = "w3-card w3-col s12";
-        new_image.onclick = set_id;
+        new_image.onclick = set_id_click_img;
         element.appendChild(new_image);
       });
     }

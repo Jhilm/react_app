@@ -41,7 +41,6 @@ const BtnExtra = () => {
     images.push(img_aux);
     app_ctx.setImage(images);
     api_save_image(img_aux);
-    console.log("guardando: ", img_aux);
   }
   function api_save_image(img) {
     const body = JSON.stringify(img);
@@ -52,11 +51,11 @@ const BtnExtra = () => {
       body,
       headers,
     });
+    console.log(img.data);
     const dataString = img.data.toString("base64");
     const imageElement = document.createElement("img");
     imageElement.src = `data:image/png;base64,${dataString}`;
     document.body.appendChild(imageElement);
-    console.log(img.data);
   }
 
   function setPencilThickness() {
